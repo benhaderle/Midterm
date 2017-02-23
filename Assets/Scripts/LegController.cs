@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class LegController : MonoBehaviour {
 
+
     public KeyCode key;
     public float distanceToTravel;
     public GameObject otherLeg;
+    public bool canMove = true;
 
     Vector3 destination;
 
@@ -18,11 +20,10 @@ public class LegController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-
-        if (Input.GetKeyDown(key) && transform.localPosition.z < 1 && transform.position == destination && otherLeg.transform.localPosition.z > -otherLeg.GetComponent<LegController>().distanceToTravel + 1) {
+        if (Input.GetKeyDown(key) && transform.localPosition.z < 1 && transform.position == destination && otherLeg.transform.localPosition.z > -otherLeg.GetComponent<LegController>().distanceToTravel + .3f) {
             destination = transform.position + (transform.forward * distanceToTravel); 
         }
-        if (Mathf.Abs(transform.position.z - destination.z) < 1)
+        if (Mathf.Abs(transform.position.z - destination.z) < .4f)
             transform.position = destination;
         else 
             transform.position = Vector3.Lerp(transform.position, destination, .4f);
