@@ -10,7 +10,7 @@ public class LegController : MonoBehaviour {
     public GameObject otherLeg;
     public bool canMove = true;
 
-    Vector3 destination;
+    public Vector3 destination;
 
     // Use this for initialization
     void Start () {
@@ -20,7 +20,10 @@ public class LegController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+       // Debug.Log("" + gameObject.name + (otherLeg.transform.localPosition.z > -otherLeg.GetComponent<LegController>().distanceToTravel + .3f));
+
         if (Input.GetKeyDown(key) && transform.localPosition.z < 1 && transform.position == destination && otherLeg.transform.localPosition.z > -otherLeg.GetComponent<LegController>().distanceToTravel + .3f) {
+            Debug.Log("u got here!" + gameObject.name);
             destination = transform.position + (transform.forward * distanceToTravel); 
         }
         if (Mathf.Abs(transform.position.z - destination.z) < .4f)

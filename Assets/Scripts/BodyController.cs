@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class BodyController : MonoBehaviour {
 
@@ -31,7 +32,7 @@ public class BodyController : MonoBehaviour {
         destination = transform.position;
         lastPacePos = transform.position;
 
-        paceTimer = paceTime;
+        paceTimer = 0;
         lowestTime = paceTime;
         pressedOnce = false;
 	}
@@ -39,9 +40,9 @@ public class BodyController : MonoBehaviour {
     public void Stop() {
         keeping = false;
 
-        paceTime = 5f;
+        //paceTime = 5f;
         lowestTime = paceTime;
-        paceTimer = paceTime;
+        paceTimer = 0;
 
         keep.gameObject.SetActive(false);
         stop.gameObject.SetActive(false);
@@ -53,11 +54,10 @@ public class BodyController : MonoBehaviour {
 
     public void Keep() {
         keeping = true;
-        rightLeg.GetComponent<LegController>().distanceToTravel -= 1f;
-
-        paceTime = 5f;
+        rightLeg.GetComponent<LegController>().distanceToTravel -= .5f;
+        
         lowestTime = paceTime;
-        paceTimer = paceTime;
+        paceTimer = 0;
 
         keep.gameObject.SetActive(false);
         stop.gameObject.SetActive(false);
@@ -66,52 +66,56 @@ public class BodyController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-     //   if (keeping) {
+        if (!keeping) {
+            if (Input.GetKeyDown(KeyCode.R))
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
 
-            if (Input.GetKeyDown(KeyCode.Space) && !pressedOnce) {
+        if (Input.GetKeyDown(KeyCode.Space) && !pressedOnce) {
 
-                if (leftLeg.transform.localPosition.z > .3f)
-                    destination.z += leftLeg.GetComponent<LegController>().distanceToTravel;
-                else if (rightLeg.transform.localPosition.z > .3f)
-                    destination.z += rightLeg.GetComponent<LegController>().distanceToTravel;
-                pressedOnce = true;
+            if (leftLeg.transform.localPosition.z > .3f) {
+                if(rightLeg.transform.localPosition.z > .3f && rightLeg.transform.localPosition.z < leftLeg.transform.localPosition.z)
+                    destination.z = rightLeg.GetComponent<LegController>().destination.z;
+                else
+                    destination.z = leftLeg.GetComponent<LegController>().destination.z;
             }
+            else if (rightLeg.transform.localPosition.z > .3f)
+                destination.z = rightLeg.GetComponent<LegController>().destination.z;
 
-            if (destination.z - transform.position.z < .1f) {
+            pressedOnce = true;
+        }
+
+        if (destination.z - transform.position.z < .1f) {
                 pressedOnce = false;
                 transform.position = destination;
-            }
-            transform.position = Vector3.Lerp(transform.position, destination, .2f);
+        }
+        transform.position = Vector3.Lerp(transform.position, destination, .2f);
 
-            if (lastPacePos.z < transform.position.z && Mathf.Abs(rightLeg.transform.localPosition.z) < rightLeg.GetComponent<LegController>().distanceToTravel - 1
-                && Mathf.Abs(leftLeg.transform.localPosition.z) < 1) {
-                lastPacePos = transform.position;
-                paceTime -= .1f;
-                paceTimer = paceTime;
+        if (transform.position.z - lastPacePos.z >= 5f && keeping && Mathf.Abs(rightLeg.transform.localPosition.z) <  1
+            && Mathf.Abs(leftLeg.transform.localPosition.z) < 1) {
 
-                if (lowestTime > paceTime)
-                    lowestTime = paceTime;
-            }
+            lastPacePos = destination;
+
+            if (lowestTime > paceTimer)
+                lowestTime = paceTimer;
+
+            paceTimer = 0;
+        }
 
 
-            paceTimer -= Time.deltaTime;
+         paceTimer += Time.deltaTime;
 
-            paceText.text = "Time to Move: " + paceTimer.ToString("n1") + "\nLowest Time : " + lowestTime.ToString("n1");
+         paceText.text = "Time to Move: " + paceTimer.ToString("n1") + "\nLowest Time : " + lowestTime.ToString("n1");
 
-            if (paceTimer < 0) {
-                paceTime = lowestTime + .1f;
-                paceTimer = paceTime;
-
-            }
-            if (lowestTime < 1.5f) {
-                keep.gameObject.SetActive(true);
-                stop.gameObject.SetActive(true);
-                story.gameObject.SetActive(true);
+         if (lowestTime < 1f) {
+            keep.gameObject.SetActive(true);
+            stop.gameObject.SetActive(true);
+            story.gameObject.SetActive(true);
 
             leftLeg.transform.localPosition = new Vector3(leftLeg.transform.localPosition.x, leftLeg.transform.localPosition.y, 0);
             rightLeg.transform.localPosition = new Vector3(rightLeg.transform.localPosition.x, rightLeg.transform.localPosition.y, 0);
         }
-      //  }
+      
 
            /*  OLD CODE 
            
