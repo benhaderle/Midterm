@@ -8,7 +8,6 @@ public class LegController : MonoBehaviour {
     public KeyCode key;
     public float distanceToTravel;
     public GameObject otherLeg;
-    public bool canMove = true;
 
     public Vector3 destination;
 
@@ -22,13 +21,16 @@ public class LegController : MonoBehaviour {
 
        // Debug.Log("" + gameObject.name + (otherLeg.transform.localPosition.z > -otherLeg.GetComponent<LegController>().distanceToTravel + .3f));
 
-        if (Input.GetKeyDown(key) && transform.localPosition.z < 1 && transform.position == destination && otherLeg.transform.localPosition.z > -otherLeg.GetComponent<LegController>().distanceToTravel + .3f) {
+        if (Input.GetKeyDown(key) && transform.localPosition.z < distanceToTravel / 2 && transform.position == destination) {
             Debug.Log("u got here!" + gameObject.name);
-            destination = transform.position + (transform.forward * distanceToTravel); 
+            if(transform.position.z >= otherLeg.transform.position.z)
+                destination = transform.position + (transform.forward * distanceToTravel); 
+            else
+                destination = transform.position + (transform.forward * distanceToTravel * 2);
         }
-        if (Mathf.Abs(transform.position.z - destination.z) < .4f)
+        if (Mathf.Abs(transform.position.z - destination.z) < .5f)
             transform.position = destination;
         else 
-            transform.position = Vector3.Lerp(transform.position, destination, .4f);
+            transform.position = Vector3.Lerp(transform.position, destination, .45f);
 	}
 }

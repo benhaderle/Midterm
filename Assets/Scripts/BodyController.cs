@@ -66,46 +66,15 @@ public class BodyController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (!keeping) {
-            if (Input.GetKeyDown(KeyCode.R))
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        }
 
-        if (Input.GetKeyDown(KeyCode.Space) && !pressedOnce) {
+        destination = new Vector3(transform.position.x, transform.position.y, Mathf.Lerp(leftLeg.transform.position.z, rightLeg.transform.position.z, .5f));
 
-            if (leftLeg.transform.localPosition.z > .3f) {
-                if(rightLeg.transform.localPosition.z > .3f && rightLeg.transform.localPosition.z < leftLeg.transform.localPosition.z)
-                    destination.z = rightLeg.GetComponent<LegController>().destination.z;
-                else
-                    destination.z = leftLeg.GetComponent<LegController>().destination.z;
-            }
-            else if (rightLeg.transform.localPosition.z > .3f)
-                destination.z = rightLeg.GetComponent<LegController>().destination.z;
+        if (Mathf.Abs(transform.position.z - destination.z) < .4f)
+            transform.position = destination;
+        else
+            transform.position = Vector3.Lerp(transform.position, destination, .2f);
 
-            pressedOnce = true;
-        }
-
-        if (destination.z - transform.position.z < .1f) {
-                pressedOnce = false;
-                transform.position = destination;
-        }
-        transform.position = Vector3.Lerp(transform.position, destination, .2f);
-
-        if (transform.position.z - lastPacePos.z >= 5f && keeping && Mathf.Abs(rightLeg.transform.localPosition.z) <  1
-            && Mathf.Abs(leftLeg.transform.localPosition.z) < 1) {
-
-            lastPacePos = destination;
-
-            if (lowestTime > paceTimer)
-                lowestTime = paceTimer;
-
-            paceTimer = 0;
-        }
-
-
-         paceTimer += Time.deltaTime;
-
-         paceText.text = "Time to Move: " + paceTimer.ToString("n1") + "\nLowest Time : " + lowestTime.ToString("n1");
+        paceText.text = "Time to Move: " + paceTimer.ToString("n1") + "\nLowest Time : " + lowestTime.ToString("n1");
 
          if (lowestTime < 1f) {
             keep.gameObject.SetActive(true);
