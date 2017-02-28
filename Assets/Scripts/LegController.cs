@@ -15,22 +15,19 @@ public class LegController : MonoBehaviour {
     void Start () {
         destination = transform.position;
 	}
-	
-	// Update is called once per frame
-	void Update () {
 
-       // Debug.Log("" + gameObject.name + (otherLeg.transform.localPosition.z > -otherLeg.GetComponent<LegController>().distanceToTravel + .3f));
+    // Update is called once per frame
+    void Update() {
+        if (BodyController.keepRunning) {
 
-        if (Input.GetKeyDown(key) && transform.localPosition.z < distanceToTravel / 2 && transform.position == destination) {
-            Debug.Log("u got here!" + gameObject.name);
-            if(transform.position.z >= otherLeg.transform.position.z)
-                destination = transform.position + (transform.forward * distanceToTravel); 
-            else
+            if (Input.GetKeyDown(key) && transform.localPosition.z < distanceToTravel / 2 && transform.position.z >= destination.z - 1) {
+
                 destination = transform.position + (transform.forward * distanceToTravel * 2);
+            }
+            if (Mathf.Abs(transform.position.z - destination.z) < .5f)
+                transform.position = destination;
+            else
+                transform.position = Vector3.Lerp(transform.position, destination, .45f);
         }
-        if (Mathf.Abs(transform.position.z - destination.z) < .5f)
-            transform.position = destination;
-        else 
-            transform.position = Vector3.Lerp(transform.position, destination, .45f);
-	}
+    }
 }

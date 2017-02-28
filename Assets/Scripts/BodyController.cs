@@ -10,19 +10,39 @@ public class BodyController : MonoBehaviour {
     GameObject rightLeg;
     Vector3 destination;
 
+    public string[] thoughtTexts;
+    int thoughtIndex = 0;
+
     float paceTimer;
-    float lowestTime;
     public float paceTime;
     float pace = 480;
-    public float[] paceGoals;
-    Vector3 lastPacePos;
+    float lastPacePos;
+    float paceAvg;
+    float paceCount;
     Text paceText;
-    bool pressedOnce;
 
-    public Button keep;
+    public Button run;
     public Button stop;
-    public Text story;
-    bool keeping = true;
+    public Button thought;
+    public Text clock;
+    public Image mirror;
+
+    public Text runEndText;
+    public Button runEndButton;
+    public Image blackImage;
+
+    public GameObject firstDoctor;
+    public GameObject xray;
+    public GameObject secondDoctor;
+    public GameObject mri;
+    public GameObject thirdDoctor;
+
+    public static bool keepRunning = false;
+    bool stopped = false;
+
+    int waitingDays = 3;
+    int[] waitingAmounts = new int[] { 1, 2, 7, 7, 30 };
+    int waitingIndex = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -30,61 +50,167 @@ public class BodyController : MonoBehaviour {
         rightLeg = GameObject.Find("Right Leg");
         paceText = GameObject.Find("Pace Text").GetComponent<Text>();
         destination = transform.position;
-        lastPacePos = transform.position;
 
-        paceTimer = 0;
-        lowestTime = paceTime;
-        pressedOnce = false;
+        lastPacePos = transform.position.z;
+        paceTimer = paceTime;
+        paceAvg = 0;
+        paceCount = 0;
 	}
 
     public void Stop() {
-        keeping = false;
+        keepRunning = false;
+        stopped = true;
 
-        //paceTime = 5f;
-        lowestTime = paceTime;
-        paceTimer = 0;
-
-        keep.gameObject.SetActive(false);
+        run.gameObject.SetActive(false);
         stop.gameObject.SetActive(false);
-        story.gameObject.SetActive(false);
+        thought.gameObject.SetActive(false);
+        clock.gameObject.SetActive(false);
+        mirror.gameObject.SetActive(false);
 
-        rightLeg.GetComponent<LegController>().distanceToTravel = .5f;
-        leftLeg.GetComponent<LegController>().distanceToTravel = .5f;
+        blackImage.gameObject.SetActive(true);
+        runEndText.gameObject.SetActive(true);
+        runEndButton.gameObject.SetActive(true);
+
+        runEndText.text = "You have a doctor's appointment in " + waitingDays + " days.";
     }
 
-    public void Keep() {
-        keeping = true;
-        rightLeg.GetComponent<LegController>().distanceToTravel -= .5f;
-        
-        lowestTime = paceTime;
-        paceTimer = 0;
+    
 
-        keep.gameObject.SetActive(false);
+    public void Run() {
+        keepRunning = true;
+        rightLeg.GetComponent<LegController>().distanceToTravel *= .7f;
+        
+        pace = paceTime;
+        paceTimer = 0;
+        paceAvg = 0;
+        paceCount = 0;
+
+        transform.position = new Vector3(transform.position.x, transform.position.y, -430);
+        destination = transform.position;
+        leftLeg.transform.localPosition = new Vector3(leftLeg.transform.localPosition.x, leftLeg.transform.localPosition.y, 0);
+        leftLeg.GetComponent<LegController>().destination = leftLeg.transform.position;
+        rightLeg.transform.localPosition = new Vector3(rightLeg.transform.localPosition.x, rightLeg.transform.localPosition.y, 0);
+        rightLeg.GetComponent<LegController>().destination = rightLeg.transform.position;
+
+        run.gameObject.SetActive(false);
         stop.gameObject.SetActive(false);
-        story.gameObject.SetActive(false);
+        thought.gameObject.SetActive(false);
+        clock.gameObject.SetActive(false);
+        mirror.gameObject.SetActive(false);
+    }
+
+    public void NextDay() {
+        if (!stopped) {
+
+            run.gameObject.SetActive(true);
+            stop.gameObject.SetActive(true);
+            thought.gameObject.SetActive(true);
+            clock.gameObject.SetActive(true);
+            mirror.gameObject.SetActive(true);
+
+            runEndText.gameObject.SetActive(false);
+            runEndButton.gameObject.SetActive(false);
+            blackImage.gameObject.SetActive(false);
+
+            thought.GetComponentInChildren<Text>().text = thoughtTexts[thoughtIndex];
+            if (thoughtIndex < thoughtTexts.Length - 1)
+                thoughtIndex++;
+        }
+        else {
+            waitingDays--;
+
+            if (waitingIndex == 0 || waitingIndex == 2 || waitingIndex == 4)
+                runEndText.text = "You have a doctor's appointment in " + waitingDays + " days.";
+            else if (waitingIndex == 1)
+                runEndText.text = "You have an xray in " + waitingDays + " days.";
+            else if (waitingIndex == 3)
+                runEndText.text = "You have an MRI in " + waitingDays + " days.";
+            else if (waitingIndex == 5)
+                runEndText.text = "You can run again in " + waitingDays + " days.";
+
+            if (waitingDays < 0) {
+                if (waitingIndex == 0) {
+
+                    firstDoctor.SetActive(true);
+                }
+                else if (waitingIndex == 1) {
+
+                    xray.SetActive(true);
+                }
+                else if (waitingIndex == 2) {
+
+                    secondDoctor.SetActive(true);
+                }
+                else if (waitingIndex == 3) {
+
+                    mri.SetActive(true);
+                }
+                else if (waitingIndex == 4) {
+                    thirdDoctor.SetActive(true);
+                }
+                else if (waitingIndex == 5)
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+                waitingDays = waitingAmounts[waitingIndex];
+                waitingIndex++;
+            }
+            else {
+                firstDoctor.SetActive(false);
+                xray.SetActive(false);
+                secondDoctor.SetActive(false);
+                mri.SetActive(false);
+                thirdDoctor.SetActive(false);
+            }
+        }
     }
 	
 	// Update is called once per frame
 	void Update () {
+        if (keepRunning) {
 
-        destination = new Vector3(transform.position.x, transform.position.y, Mathf.Lerp(leftLeg.transform.position.z, rightLeg.transform.position.z, .5f));
+            destination = new Vector3(transform.position.x, transform.position.y, Mathf.Lerp(leftLeg.transform.position.z, rightLeg.transform.position.z, .5f));
 
-        if (Mathf.Abs(transform.position.z - destination.z) < .4f)
-            transform.position = destination;
-        else
-            transform.position = Vector3.Lerp(transform.position, destination, .2f);
+            if (Mathf.Abs(transform.position.z - destination.z) < .4f)
+                transform.position = destination;
+            else
+                transform.position = Vector3.Lerp(transform.position, destination, .2f);
 
-        paceText.text = "Time to Move: " + paceTimer.ToString("n1") + "\nLowest Time : " + lowestTime.ToString("n1");
+            if (pace % 60 < 10)
+                paceText.text = "Pace " + (pace / 60).ToString("n0") + ":0" + (pace % 60).ToString("n0");
+            else
+                paceText.text = "Pace " + (pace / 60).ToString("n0") + ":" + (pace % 60).ToString("n0");
 
-         if (lowestTime < 1f) {
-            keep.gameObject.SetActive(true);
-            stop.gameObject.SetActive(true);
-            story.gameObject.SetActive(true);
+            paceTimer -= Time.deltaTime;
 
-            leftLeg.transform.localPosition = new Vector3(leftLeg.transform.localPosition.x, leftLeg.transform.localPosition.y, 0);
-            rightLeg.transform.localPosition = new Vector3(rightLeg.transform.localPosition.x, rightLeg.transform.localPosition.y, 0);
+            if (paceTimer < 0) {
+                if (transform.position.z - lastPacePos == 0)
+                    pace = 0;
+                else {
+
+                    pace = 440 - ((transform.position.z - lastPacePos - 10) / paceTime);
+                    paceCount++;
+                    paceAvg += pace;
+                }
+
+                paceTimer = paceTime;
+                lastPacePos = transform.position.z;
+            }
+            if (transform.position.z >= 1000) {
+                keepRunning = false;
+                runEndText.gameObject.SetActive(true);
+                runEndButton.gameObject.SetActive(true);
+                blackImage.gameObject.SetActive(true);
+
+                paceAvg /= paceCount;
+                if (paceAvg % 60 < 10)
+                    runEndText.text = "You ran 7 miles at an average of " + (int)(paceAvg / 60) + ":0" + (int)(paceAvg % 60) + ".";
+                else
+                    runEndText.text = "You ran 7 miles at an average of " + (int)(paceAvg / 60) + ":" + (int)(paceAvg % 60) + ".";
+            }
+
         }
-      
+        else if (stopped) {
+        }
 
            /*  OLD CODE 
            
