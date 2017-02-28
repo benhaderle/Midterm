@@ -73,21 +73,15 @@ public class BodyController : MonoBehaviour {
         runEndButton.gameObject.SetActive(true);
 
         runEndText.text = "You have a doctor's appointment in " + waitingDays + " days.";
-    }
-
-    
+    }  
 
     public void Run() {
         keepRunning = true;
-        rightLeg.GetComponent<LegController>().distanceToTravel *= .7f;
-        
-        pace = paceTime;
-        paceTimer = 0;
-        paceAvg = 0;
-        paceCount = 0;
+        rightLeg.GetComponent<LegController>().distanceToTravel *= .6f;
 
         transform.position = new Vector3(transform.position.x, transform.position.y, -430);
         destination = transform.position;
+        lastPacePos = transform.position.z;
         leftLeg.transform.localPosition = new Vector3(leftLeg.transform.localPosition.x, leftLeg.transform.localPosition.y, 0);
         leftLeg.GetComponent<LegController>().destination = leftLeg.transform.position;
         rightLeg.transform.localPosition = new Vector3(rightLeg.transform.localPosition.x, rightLeg.transform.localPosition.y, 0);
@@ -98,6 +92,11 @@ public class BodyController : MonoBehaviour {
         thought.gameObject.SetActive(false);
         clock.gameObject.SetActive(false);
         mirror.gameObject.SetActive(false);
+
+        pace = paceTime;
+        paceTimer = 0;
+        paceAvg = 0;
+        paceCount = 0;
     }
 
     public void NextDay() {
@@ -121,13 +120,18 @@ public class BodyController : MonoBehaviour {
             waitingDays--;
 
             if (waitingIndex == 0 || waitingIndex == 2 || waitingIndex == 4)
-                runEndText.text = "You have a doctor's appointment in " + waitingDays + " days.";
+                runEndText.text = "You have a doctor's appointment in ";
             else if (waitingIndex == 1)
-                runEndText.text = "You have an xray in " + waitingDays + " days.";
+                runEndText.text = "You have an xray in ";
             else if (waitingIndex == 3)
-                runEndText.text = "You have an MRI in " + waitingDays + " days.";
+                runEndText.text = "You have an MRI in ";
             else if (waitingIndex == 5)
-                runEndText.text = "You can run again in " + waitingDays + " days.";
+                runEndText.text = "You can run again in ";
+
+            if (waitingDays != 1)
+                runEndText.text += waitingDays + " days.";
+            else
+                runEndText.text += waitingDays + " day.";
 
             if (waitingDays < 0) {
                 if (waitingIndex == 0) {
@@ -168,7 +172,8 @@ public class BodyController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         if (keepRunning) {
-
+            
+            //moving the body
             destination = new Vector3(transform.position.x, transform.position.y, Mathf.Lerp(leftLeg.transform.position.z, rightLeg.transform.position.z, .5f));
 
             if (Mathf.Abs(transform.position.z - destination.z) < .4f)
@@ -176,19 +181,21 @@ public class BodyController : MonoBehaviour {
             else
                 transform.position = Vector3.Lerp(transform.position, destination, .2f);
 
+            //updating pace/distance text
             if (pace % 60 < 10)
-                paceText.text = "Pace " + (int)(pace / 60) + ":0" + (int)(pace % 60) + "\nDistance Left " + ((1430 - (transform.position.z + 430)) / 1430 * 7f).ToString("n1") + "mi";
+                paceText.text = "Pace " + (int)(pace / 60) + ":0" + (int)(pace % 60) + "\nDistance Left " + ((1000 - (transform.position.z + 430)) / 1000 * 7f).ToString("n1") + "mi";
             else
-                paceText.text = "Pace " + (int)(pace / 60) + ":" + (int)(pace % 60) + "\nDistance Left " + ((1430 - (transform.position.z + 430)) / 1430 * 7f).ToString("n1") + "mi";
+                paceText.text = "Pace " + (int)(pace / 60) + ":" + (int)(pace % 60) + "\nDistance Left " + ((1000 - (transform.position.z + 430)) / 1000 * 7f).ToString("n1") + "mi";
 
             paceTimer -= Time.deltaTime;
 
+            //figuring out pace
             if (paceTimer < 0) {
                 if (transform.position.z - lastPacePos == 0)
                     pace = 0;
                 else {
 
-                    pace = 440 - ((transform.position.z - lastPacePos - 10) / paceTime);
+                    pace = 450 - ((transform.position.z - lastPacePos - 10) / paceTime);
                     paceCount++;
                     paceAvg += pace;
                 }
@@ -196,7 +203,7 @@ public class BodyController : MonoBehaviour {
                 paceTimer = paceTime;
                 lastPacePos = transform.position.z;
             }
-            if (transform.position.z >= 1000) {
+            if (transform.position.z >= 570) {
                 keepRunning = false;
                 runEndText.gameObject.SetActive(true);
                 runEndButton.gameObject.SetActive(true);
