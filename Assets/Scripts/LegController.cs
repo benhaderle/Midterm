@@ -8,6 +8,7 @@ public class LegController : MonoBehaviour {
     public KeyCode key;
     public float distanceToTravel;
     public GameObject otherLeg;
+    public GameObject keyText;
 
     public Vector3 destination;
 
@@ -21,7 +22,7 @@ public class LegController : MonoBehaviour {
         if (BodyController.keepRunning) {
 
             if (Input.GetKeyDown(key) && transform.localPosition.z < distanceToTravel / 2 && transform.position.z >= destination.z - 1) {
-
+                keyText.SetActive(false);
                 destination = transform.position + (transform.forward * distanceToTravel * 2);
             }
             if (Mathf.Abs(transform.position.z - destination.z) < .5f)

@@ -21,6 +21,7 @@ public class BodyController : MonoBehaviour {
     float paceCount;
     Text paceText;
 
+
     public Button run;
     public Button stop;
     public Button thought;
@@ -176,9 +177,9 @@ public class BodyController : MonoBehaviour {
                 transform.position = Vector3.Lerp(transform.position, destination, .2f);
 
             if (pace % 60 < 10)
-                paceText.text = "Pace " + (pace / 60).ToString("n0") + ":0" + (pace % 60).ToString("n0");
+                paceText.text = "Pace " + (int)(pace / 60) + ":0" + (int)(pace % 60) + "\nDistance Left " + ((1430 - (transform.position.z + 430)) / 1430 * 7f).ToString("n1") + "mi";
             else
-                paceText.text = "Pace " + (pace / 60).ToString("n0") + ":" + (pace % 60).ToString("n0");
+                paceText.text = "Pace " + (int)(pace / 60) + ":" + (int)(pace % 60) + "\nDistance Left " + ((1430 - (transform.position.z + 430)) / 1430 * 7f).ToString("n1") + "mi";
 
             paceTimer -= Time.deltaTime;
 
