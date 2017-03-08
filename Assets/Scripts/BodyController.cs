@@ -21,6 +21,9 @@ public class BodyController : MonoBehaviour {
     float paceCount;
     Text paceText;
 
+    int secret1 = 0;
+    int secret2 = 0;
+
 
     public Button run;
     public Button stop;
@@ -97,6 +100,33 @@ public class BodyController : MonoBehaviour {
         paceTimer = 0;
         paceAvg = 0;
         paceCount = 0;
+    }
+
+    void Secrets() {
+        if (Input.GetKeyDown(KeyCode.Alpha9) && secret1 == 0)
+            secret1++;
+        else if (Input.GetKeyDown(KeyCode.Alpha0) && secret1 == 1) {
+            secret1 = 0;
+            GetComponents<AudioSource>()[0].PlayOneShot(GetComponents<AudioSource>()[0].clip);
+        }
+        else if (Input.GetKeyDown(KeyCode.G) && secret2 == 0)
+            secret2++;
+        else if (Input.GetKeyDown(KeyCode.O) && secret2 == 1)
+            secret2++;
+        else if (Input.GetKeyDown(KeyCode.F) && secret2 == 2)
+            secret2++;
+        else if (Input.GetKeyDown(KeyCode.A) && secret2 == 3)
+            secret2++;
+        else if (Input.GetKeyDown(KeyCode.S) && secret2 == 4)
+            secret2++;
+        else if (Input.GetKeyDown(KeyCode.T) && secret2 == 5) {
+            secret2 = 0;
+            GetComponents<AudioSource>()[1].PlayOneShot(GetComponents<AudioSource>()[1].clip);
+        }
+        else if (Input.anyKeyDown) {
+            secret1 = 0;
+            secret2 = 0;
+        }
     }
 
     public void NextDay() {
@@ -188,6 +218,9 @@ public class BodyController : MonoBehaviour {
                 paceText.text = "Pace " + (int)(pace / 60) + ":" + (int)(pace % 60) + "\nDistance Left " + ((1000 - (transform.position.z + 430)) / 1000 * 7f).ToString("n1") + "mi";
 
             paceTimer -= Time.deltaTime;
+
+
+            Secrets();
 
             //figuring out pace
             if (paceTimer < 0) {
