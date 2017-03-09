@@ -64,6 +64,9 @@ public class BodyController : MonoBehaviour {
 	}
 
     public void Stop() {
+        GetComponents<AudioSource>()[3].pitch = .5f;
+        GetComponents<AudioSource>()[3].Play();
+
         keepRunning = false;
         stopped = true;
 
@@ -81,6 +84,10 @@ public class BodyController : MonoBehaviour {
     }  
 
     public void Run() {
+        GetComponents<AudioSource>()[3].pitch = 2;
+        GetComponents<AudioSource>()[3].Play();
+        GetComponents<AudioSource>()[2].Play();
+
         keepRunning = true;
         rightLeg.GetComponent<LegController>().distanceToTravel *= .6f;
 
@@ -103,6 +110,9 @@ public class BodyController : MonoBehaviour {
         paceAvg = 0;
         paceCount = 0;
         timesRun++;
+
+        
+        
     }
 
     void Secrets() {
@@ -148,8 +158,13 @@ public class BodyController : MonoBehaviour {
             thought.GetComponentInChildren<Text>().text = thoughtTexts[thoughtIndex];
             if (thoughtIndex < thoughtTexts.Length - 1)
                 thoughtIndex++;
+
+            GetComponents<AudioSource>()[3].pitch = 2;
+            GetComponents<AudioSource>()[3].Play();
         }
         else {
+            GetComponents<AudioSource>()[3].pitch += .02f;
+            GetComponents<AudioSource>()[3].Play();
             waitingDays--;
 
             if (waitingIndex == 0 || waitingIndex == 2 || waitingIndex == 4)
@@ -244,6 +259,7 @@ public class BodyController : MonoBehaviour {
                 runEndText.gameObject.SetActive(true);
                 runEndButton.gameObject.SetActive(true);
                 blackImage.gameObject.SetActive(true);
+                GetComponents<AudioSource>()[2].Stop();
 
                 paceAvg /= paceCount;
                 if (paceAvg % 60 < 10)
