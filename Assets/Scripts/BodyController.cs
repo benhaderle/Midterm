@@ -19,6 +19,7 @@ public class BodyController : MonoBehaviour {
     float lastPacePos;
     float paceAvg;
     float paceCount;
+    int timesRun;
     Text paceText;
 
     int secret1 = 0;
@@ -59,6 +60,7 @@ public class BodyController : MonoBehaviour {
         paceTimer = paceTime;
         paceAvg = 0;
         paceCount = 0;
+        timesRun = 0;
 	}
 
     public void Stop() {
@@ -100,6 +102,7 @@ public class BodyController : MonoBehaviour {
         paceTimer = 0;
         paceAvg = 0;
         paceCount = 0;
+        timesRun++;
     }
 
     void Secrets() {
@@ -163,7 +166,7 @@ public class BodyController : MonoBehaviour {
             else
                 runEndText.text += waitingDays + " day.";
 
-            if (waitingDays < 0) {
+            if (waitingDays < 1) {
                 if (waitingIndex == 0) {
 
                     firstDoctor.SetActive(true);
@@ -228,7 +231,7 @@ public class BodyController : MonoBehaviour {
                     pace = 0;
                 else {
 
-                    pace = 450 - ((transform.position.z - lastPacePos - 10) / paceTime);
+                    pace = 450 - ((transform.position.z - lastPacePos - 10) / paceTime) + Mathf.Pow(2, timesRun);
                     paceCount++;
                     paceAvg += pace;
                 }
