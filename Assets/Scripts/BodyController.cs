@@ -30,6 +30,8 @@ public class BodyController : MonoBehaviour {
     public Button stop;
     public Button thought;
     public Text clock;
+    public Text title1;
+    public Text title2;
     public Image mirror;
 
     public Text runEndText;
@@ -104,6 +106,8 @@ public class BodyController : MonoBehaviour {
         thought.gameObject.SetActive(false);
         clock.gameObject.SetActive(false);
         mirror.gameObject.SetActive(false);
+        title1.gameObject.SetActive(false);
+        title2.gameObject.SetActive(false);
 
         pace = paceTime;
         paceTimer = 0;
